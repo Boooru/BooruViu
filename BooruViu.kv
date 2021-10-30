@@ -1,0 +1,47 @@
+ProviderWindow:
+
+<ProviderWindow>:
+    FloatLayout:
+        id: outer_float_layout
+
+        BoxLayout:
+            id: outer_box_layout
+            orientation: "vertical"
+            size_hint: None, None
+            size: (root.size[0], root.size[1])
+
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint: 1, 0.1
+
+                Button:
+                    id:search_button
+                    text:"Search"
+                    on_press: root.search()
+                    size_hint: 0.3,None
+
+                TextInput
+                    id:tags
+                    size_hint: 0.5, None
+
+                Button:
+                    id:settings_button
+                    text:"Settings"
+                    on_press: root.launch_settings()
+                    size_hint: 0.2, None
+
+
+            ScrollView:
+                id: image_scroll_view
+                do_scroll_x: False
+                do_scroll_y: True
+                always_overscroll: True
+
+        FuncImageButton:
+            source: "assets/images/circle_edit-image.png"
+            id: flow_fab
+            size_hint: (0.7, 0.7)
+            pos_hint:{"x":0.2,"y":0.2}
+            tap_func: root.open_flows_menu()
+
+
