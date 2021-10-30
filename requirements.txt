@@ -1,9 +1,8 @@
-Kivy
-twitter
+Kivy[full]
+twitter==1.19.3
 requests
-configparser
-selenium
-webdriver_manager
-PixivPy
-Pillow
+configparser==5.0.2
+selenium==4.0.0
+webdriver_manager==3.5.1
+PixivPy==3.6.0
 saucenao_api
