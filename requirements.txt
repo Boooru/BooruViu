@@ -1,0 +1,9 @@
+Kivy
+twitter
+requests
+configparser
+selenium
+webdriver_manager
+PixivPy
+Pillow
+saucenao_api
