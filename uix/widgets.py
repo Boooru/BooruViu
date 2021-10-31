@@ -48,20 +48,25 @@ class LabeledCheckBox(CheckBox):
 
 # An array of checkboxes. When exclusive is set to true, only one may be selected at a time
 class CheckBoxArray(GridLayout):
-    __exclusive: bool = True
-    on_select = None  # An auxiliary function that can be called whenever any box gets checked
-    __label_map = None
 
-    def __init__(self, labels: list[str], exclusive: bool = True, **kwargs, ):
+    def __init__(self, labels: list[str], title: str = None, exclusive: bool = True, on_select=None, **kwargs):
 
         super().__init__(**kwargs)
-        self.cols = 2
+        self.cols = 1
 
         self.__exclusive = exclusive
         self.__label_map = {}
 
+        self.on_select = on_select  # An auxiliary function that can be called whenever any box gets checked
+        self.__grid = GridLayout(cols=2, size_hint=(1, 1))  # Main grid layout
+
+        if title:
+            self.add_widget(Label(text=title))
+
         for label in labels:
             self.create_child(label)
+
+        self.add_widget(self.__grid)
 
     # Add a new checkbox/label pair
     def create_child(self, text: str):
@@ -71,8 +76,8 @@ class CheckBoxArray(GridLayout):
         check.bind(active=self.activate)  # Bind the activation function
 
         # Add box widgets to the outer layout
-        self.add_widget(label)
-        self.add_widget(check)
+        self.__grid.add_widget(label)
+        self.__grid.add_widget(check)
 
         self.__label_map[label.text] = check
 
@@ -84,9 +89,10 @@ class CheckBoxArray(GridLayout):
                     child.active = False
 
         if self.on_select is not None and len(self.all_active()) > 0:  # If on_select was set, run it
+            print("Running on_select!")
             self.on_select(self.all_active())
 
-    def set_activate(self, label_text: str):
+    def set_active(self, label_text: str):
         if label_text in self.__label_map:
             self.__label_map[label_text].active = True
         else:
@@ -95,8 +101,8 @@ class CheckBoxArray(GridLayout):
     # Get the text associated with all checked boxes
     def all_active(self) -> list[str]:
         labels = []
-        for child in self.children:
+        for child in self.children[0].children:
             if type(child) == LabeledCheckBox and child.active:
                 labels.append(child.text)
-
+        print("All active: " + str(labels))
         return labels

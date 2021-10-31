@@ -210,13 +210,23 @@ class ProviderWindow(Widget):
     def launch_settings(self):
         viewer = Popup()
         viewer.title = "Settings"
-        outer_layout = StackLayout()
-        check_array = CheckBoxArray(labels=assets.strings.ALL_PROVIDERS)
-        check_array.on_select = self.set_provider
-        check_array.set_activate(provider_util.translate(self.provider_manager.get_active_provider()))
-        outer_layout.add_widget(check_array)
-        viewer.content = outer_layout
+        outer_layout = GridLayout(cols=1)
 
+        provider_check_array = CheckBoxArray(labels=assets.strings.ALL_PROVIDERS,
+                                             title="Provider",
+                                             on_select=self.set_provider)
+        provider_check_array.set_active(provider_util.translate(self.provider_manager.get_active_provider()))
+
+        flows_check_array = CheckBoxArray(labels=main.flow_manager.all_flow_names(),
+                                          title="Flows", exclusive=False,
+                                          on_select=main.flow_manager.submit_activation_request)
+        for flow in main.flow_manager.get_enabled():
+            flows_check_array.set_active(flow)
+
+        outer_layout.add_widget(flows_check_array)
+        outer_layout.add_widget(provider_check_array)
+
+        viewer.content = outer_layout
         viewer.open()
 
     def update_save_dir(self, caller):

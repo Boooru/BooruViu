@@ -51,11 +51,13 @@ class FlowManager:
         flow.attempt_to_activate()
         return True
 
-    def get_enabled(self):
+    def get_enabled(self) -> list[str]:
         enabled_list = []
         for key in self.flows:
             for subkey in self.flows[key]:
                 enabled_list.append(self.flows[key][subkey].name)
+
+        return enabled_list
 
     def enabled(self, flow: FlowModule):
         return self.exists(flow) and flow.activation_condition()
@@ -77,8 +79,18 @@ class FlowManager:
             for subkey in self.flows[key]:
                 flows.append(subkey)
         return flows
+
     def submit_activation_request(self, flow_name: str):
-        flow_activate_lock.acquire()
-        flow_activate_queue.append(flow_name)
-        flow_activate_lock.release()
-        self.__thread_pool.submit(self.__activate, flow_name)
+
+        if type(flow_name) == str:
+            flow_activate_lock.acquire()
+            flow_activate_queue.append(flow_name)
+            flow_activate_lock.release()
+            self.__thread_pool.submit(self.__activate, flow_name)
+
+        if type(flow_name) == list:
+            for flow in flow_name:
+                flow_activate_lock.acquire()
+                flow_activate_queue.append(flow)
+                flow_activate_lock.release()
+                self.__thread_pool.submit(self.__activate, flow)
