@@ -32,7 +32,6 @@ class FlowManager:
 
     def __activate(self, flow_name: str):
         flow = self.get_flow(flow_name)
-        print("Retrieved flow at" + str(flow))
 
         if self.enabled(flow):
             print("Flow already enabled!")
@@ -55,12 +54,13 @@ class FlowManager:
         enabled_list = []
         for key in self.flows:
             for subkey in self.flows[key]:
-                enabled_list.append(self.flows[key][subkey].name)
+                if self.enabled(self.flows[key][subkey]):
+                    enabled_list.append(self.flows[key][subkey].name)
 
         return enabled_list
 
     def enabled(self, flow: FlowModule):
-        return self.exists(flow) and flow.activation_condition()
+        return self.exists(flow) and flow.is_activated()
 
     def exists(self, flow: FlowModule):
         return flow \
@@ -83,13 +83,17 @@ class FlowManager:
     def submit_activation_request(self, flow_name: str):
 
         if type(flow_name) == str:
+            if flow_name in self.get_enabled():
+                return
             flow_activate_lock.acquire()
             flow_activate_queue.append(flow_name)
             flow_activate_lock.release()
             self.__thread_pool.submit(self.__activate, flow_name)
 
-        if type(flow_name) == list:
+        elif type(flow_name) == list:
             for flow in flow_name:
+                if flow_name in self.get_enabled():
+                    continue
                 flow_activate_lock.acquire()
                 flow_activate_queue.append(flow)
                 flow_activate_lock.release()

@@ -22,15 +22,21 @@ class FlowModule:
         self.name = name # Name for the module
         self.state: FlowModuleState = FlowModuleState.UNAVAILABLE  # The state the module is in
         self.phase: FlowPhase = None  # The phase for execution of the flow
-        self.activation_condition = activation_condition  # A callable that returns true or false based on some arbitrary condition
         self.prerequisites: list[str] = []
         self.space_requirements: int = 0  # Pre-computed space requirements for the module, in MB
         self.__setup = setup
 
+    def is_activated(self):
+        print("Running default is_active()!")
+        return False
+
+    def interface(self, **kwargs):
+        pass
+
     # Perform all tasks necessary to set the module up and get it ready for use
     def attempt_to_activate(self) -> bool:
         Logger.info("Attempting to activate " + self.name + "...")
-        if not self.activation_condition():  # if the activation condition is not met
+        if not self.is_activated():  # if the activation condition is not met
             print("Running setup!")
             self.__setup()
             Logger.info("Successfully activated " + self.name + "!")

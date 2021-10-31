@@ -14,9 +14,8 @@ class DownloadModule(FlowModule):
         super(DownloadModule, self).__init__()
         self.name = "download"
         self.phase = FlowPhase.PREPROCESSING
-        self.activation_condition = self.__is_activated
 
-    def __is_activated(self):
+    def is_activated(self):
         return main.async_downloader is not None
 
     def __setup(self):
@@ -36,9 +35,8 @@ class FormatConvertModule(FlowModule):
         super(FormatConvertModule, self).__init__()
         self.name = "convert format"
         self.phase = FlowPhase.PREPROCESSING
-        self.activation_condition = self.__is_activated
 
-    def __is_activated(self):
+    def is_activated(self):
         return True
 
     def __setup(self):
@@ -51,10 +49,26 @@ class FormatConvertModule(FlowModule):
 
 
 class UpscaleImageModule(FlowModule):
+    path_to_exe = None
+
     def __init__(self):
         self.phase = FlowPhase.PREPROCESSING
         super(UpscaleImageModule, self).__init__("upscale image", self._setup, self.check_for_bin)
-        self.path_to_exe = None
+        self.check_for_bin()
+
+    def interface(self, in_path, out_path, denoise=0, scale=2, ext="png", load_proc_save="1:2:2"):
+        if self.path_to_exe and os.path.isfile(self.path_to_exe):
+            command = self.path_to_exe + " -i {i} -o {o} -n {n} -s {s} -j {j} -f {f}".format(i=in_path,
+                                                                                             o=out_path,
+                                                                                             n=denoise,
+                                                                                             s=scale,
+                                                                                             j=load_proc_save,
+                                                                                             f=ext)
+
+
+    def is_activated(self):
+        print("UpscaleImageModule is active:" + str(self.path_to_exe is not None))
+        return self.path_to_exe is not None
 
     def _setup(self):
         print("Running setup for: " + self.name)
@@ -94,9 +108,9 @@ class UpscaleImageModule(FlowModule):
 
         # Look for dir containing exe
         for root, dirs, files in os.walk(rootdir):
-            for dir in dirs:
-                if regex_dir.match(dir):
-                    found_dir = dir
+            for directory in dirs:
+                if regex_dir.match(directory):
+                    found_dir = directory
 
         if not found_dir:
             return False
@@ -113,13 +127,11 @@ class UpscaleImageModule(FlowModule):
         return False
 
     def make_bin_dir(self):
-        try:
-            print("Making bin")
-            from pathlib import Path
-            path = Path(assets.strings.MODULE_UPSCALE_BIN_PATH)
-            os.makedirs(path, exist_ok=True)
-            return True
-        except:
-            raise
+        print("Making bin")
+        from pathlib import Path
+        path = Path(assets.strings.MODULE_UPSCALE_BIN_PATH)
+        os.makedirs(path, exist_ok=True)
+        return True
+
 
 
