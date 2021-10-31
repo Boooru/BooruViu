@@ -4,6 +4,7 @@ from kivy import Config, platform
 from kivy.core.window import Window
 
 import ui
+import util.io
 import util.io as io
 
 from flow.preprocessing.download import AsyncDownloader
@@ -15,6 +16,7 @@ flow_manager = FlowManager()
 
 
 def root():
+    util.io.load_api_keys()
     Config.set('graphics', 'resizable', True)
     Window.size = (1920, 1080)
     ui.BooruViuApp().run()

@@ -1,3 +1,4 @@
+import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from queue import Queue
@@ -24,6 +25,9 @@ class AsyncDownloader:
 
     def __init__(self, thread_num=__DEFAULT_THREAD_NUM):
         self.__thread_pool = ThreadPoolExecutor(thread_num)
+
+        if not os.path.isdir(assets.strings.SAVE_PATH):
+            os.mkdir(assets.strings.SAVE_PATH)
 
     def __download(self, req: DownloadRequest):
         fname = req.name

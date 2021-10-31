@@ -86,6 +86,7 @@ class FocusWindow(Widget):
         print(self.headers)
         for entry in urls:
             if entry is None or entry.image_small is None:
+                print("Couldn't process entry!")
                 continue
             img = None
             if entry.image_small[-3:] == "mp4":
@@ -126,7 +127,7 @@ class FocusWindow(Widget):
 
         save_to_disk_button.cg_tap = lambda a, b, c: \
             main.async_downloader.submit_url(meta_data.image_full,
-            headers=self.provider.get_headers())
+                                             headers=self.provider.get_headers())
 
         left_menu = BoxLayout(orientation='vertical', size_hint=(0.05, 1))  # handle layout
         left_menu.add_widget(open_in_browser_button)
@@ -135,12 +136,12 @@ class FocusWindow(Widget):
 
         # Set up big image
         if 'twitter_video' in meta_data.tags:
-            big_image = ClickableAsyncImage(source=meta_data.image_small)
+            big_image = MetaDataImage(source=meta_data.image_small)
         elif meta_data.image_path and meta_data.image_path != "":
-            big_image = ClickableAsyncImage(source=meta_data.image_path)
+            big_image = MetaDataImage(source=meta_data.image_path)
         else:
-            big_image = ClickableAsyncImage(source=meta_data.image_full,
-                                            extra_headers=self.headers)
+            big_image = MetaDataImage(source=meta_data.image_full,
+                                      extra_headers=self.headers)
 
         # big_image.bind(on_press=self.save_from_url)
         big_image.meta_data = meta_data
@@ -180,10 +181,10 @@ class FocusWindow(Widget):
                 # img = Video(source=entry.image_full)
                 pass
             else:
-                img = ClickableAsyncImage(source=entry.image_full, keep_ratio=True, allow_stretch=True,
+                img = MetaDataImage(source=entry.image_full, keep_ratio=True, allow_stretch=True,
                                           extra_headers=self.headers)
                 img.meta_data = entry
-                img.bind(on_press=self.launch_big_viewer)
+                img.func = self.launch_big_viewer
                 img.size_hint = (1, 1)
                 self.C_L.add_widget(img)
 

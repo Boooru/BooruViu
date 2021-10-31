@@ -5,20 +5,16 @@ import webbrowser
 from typing import Optional, Union
 
 from kivy import Logger
-from kivy.input.providers.mouse import MouseMotionEvent
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import AsyncImage
+from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from kivy.uix.scrollview import ScrollView
 
 import assets
 import core.caches
 import util
-from uix.common_gestures.gesturelabel import GestureLabel
 from uix.layouts import ClickableBoxLayout, DataGridLayout
-from uix.widgets import FuncImageButton, FuncButton
+from uix.widgets import FuncButton
 
 
 def open_link_in_browser(data):
@@ -38,7 +34,7 @@ def best_video_variant(variants: list) -> str:
     best_bitrate: int = 0
 
     for var in variants:
-        if best_url == None:
+        if best_url is None:
             best_url = var['url']
         if 'bitrate' in var:
             if best_bitrate < int(var['bitrate']):

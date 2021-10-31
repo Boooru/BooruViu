@@ -1,21 +1,25 @@
 from twitter import Twitter, OAuth2, TwitterStream
 from twitter.api import TwitterListResponse
 
+import core.caches
 from core.structures.Entry import Entry
 from core.structures.ImageProvider import ImageProvider
 from util import utils
 
 
 class TwitterProvider(ImageProvider):
-    __bearer_token = "AAAAAAAAAAAAAAAAAAAAANkwVAEAAAAAHrnlvtVXfnueWm7F1ISHqempJjw%3DKrYYeMtEJo7DEqQIQvRODolqhKHOOz0WkMgt74apbAbNlqYBzi"
+    __bearer_token = None
 
     def __init__(self, **kwargs):
         super().__init__()
         if "bearer_token" in kwargs:
             self.__bearer_token = kwargs["bearer_token"]
+        else:
+            self.__bearer_token = core.caches.api_keys['Twitter']
         self.__twitter = Twitter(auth=OAuth2(bearer_token=self.__bearer_token))
         self.__stream = TwitterStream(auth=OAuth2(bearer_token=self.__bearer_token))
         self.__target = ""
+        self.set_limit(200) # Not true image limit, actually
 
     def compose(self) -> str:
         if len(self.get_tags()) > 0:
