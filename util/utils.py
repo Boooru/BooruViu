@@ -139,6 +139,7 @@ def choose_saucenao_result(url, mode: str = "browser"):
     p.content = container
     p.open()
 
+
 def make_temp_dir():
     try:
         os.mkdir("temp")

@@ -34,7 +34,6 @@ class ImageProvider:
 
         self.page_number = 0
 
-
     def make_entry(self, data: str) -> Entry:
         print("Default entry factory")
 

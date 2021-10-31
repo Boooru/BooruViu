@@ -16,7 +16,6 @@ flow_manager = FlowManager()
 
 
 def root():
-    util.io.load_api_keys()
     Config.set('graphics', 'resizable', True)
     Window.size = (1920, 1080)
     ui.BooruViuApp().run()
