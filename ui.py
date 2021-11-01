@@ -43,7 +43,7 @@ class ProviderWindow(Widget):
 
         self.provider_manager = ImageProviderManager.ProviderManager()
 
-        self.sorting_mode_setup()
+        #self.sorting_mode_setup()
 
         with self.canvas.before:
             Color(.40, .40, .40, 1)

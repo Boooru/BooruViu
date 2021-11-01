@@ -19,7 +19,7 @@ class RedditProvider(ImageProvider):
         self.__subreddt_generator: Subreddit = None
         self.set_limit(1)
         self.sorting_modes = ['top', 'hot', 'new']
-        self.sort_mode = self.sorting_modes[0]
+        self.sort_mode = self.sorting_modes[1]
 
     def __auth(self):
         if assets.strings.PROVIDER_REDDIT_NAME in core.caches.api_cache and \
