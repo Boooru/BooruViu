@@ -59,7 +59,9 @@ class ProviderWindow(Widget):
         gc.collect(generation=2)
 
         self.provider_manager.get_active_provider().clear_tags()
-        self.provider_manager.get_active_provider().add_tags_from_string(self.ids.tags.text)
+
+        if self.ids.tags.text != "":
+            self.provider_manager.get_active_provider().add_tags_from_string(self.ids.tags.text)
 
         composition = self.provider_manager.get_active_provider().compose()
         urls = self.provider_manager.get_active_provider().search()

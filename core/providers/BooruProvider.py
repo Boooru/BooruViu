@@ -8,6 +8,9 @@ from core.structures.ImageProvider import ImageProvider
 
 class BooruProvider(ImageProvider):
     provider_url = ""
+    page_tag = "pid"
+
+    use_json_marker = True
 
     def __init__(self):
         super().__init__()
@@ -18,13 +21,15 @@ class BooruProvider(ImageProvider):
         req = self.provider_url
 
         # handle tags
-        req = req + "&tags="
-        for tag in self.get_tags():
-            req = req + "+" + tag
+        if self.get_tags() and len(self.get_tags()) > 0:
+            req = req + "&tags="
+            for tag in self.get_tags():
+                req = req + "+" + tag
 
         # insert blacklisted tags
-        for tag in self.get_blacklisted_tags():
-            req = req + "+-" + tag
+        if self.get_blacklisted_tags() and len(self.get_blacklisted_tags()) > 0:
+            for tag in self.get_blacklisted_tags():
+                req = req + "+-" + tag
 
         # handle safety
         if self.is_always_safe():
@@ -43,10 +48,12 @@ class BooruProvider(ImageProvider):
             elif self.sort_mode == self.RANDOM_SORT:
                 req = req + "&sort:random"
 
-        req = req + "&pid=" + str(self.page_number)
+        req = req + "&{t}=".format(t=self.page_tag) + str(self.page_number)
 
-        req = req + "&json=1"
+        if self.use_json_marker:
+            req = req + "&json=1"
 
+        print(req)
         return req
 
     def make_entry(self, data: dict) -> Entry:
@@ -106,3 +113,87 @@ class Rule34Provider(BooruProvider):
         en.tags = data["tags"].split(" ")
         en.headers = self.get_headers()
         return en
+
+
+class DanbooruProvider(BooruProvider):
+
+    def __init__(self):
+        super(DanbooruProvider, self).__init__()
+        self.provider_url = "https://danbooru.donmai.us/posts.json?"
+        self.page_tag = "page"
+        self.use_json_marker = False
+
+    def compose(self) -> str:
+        first_append = True
+        req = self.provider_url
+
+        # handle tags
+        if self.get_tags() and len(self.get_tags()) > 0:
+            if first_append:
+                first_append = False
+            else:
+                req = req + '&'
+            req = req + "tags="
+            for tag in self.get_tags():
+                req = req + "+" + tag
+
+        # insert blacklisted tags
+        if self.get_blacklisted_tags() and len(self.get_blacklisted_tags()) > 0:
+            for tag in self.get_blacklisted_tags():
+                req = req + "+-" + tag
+
+        # handle safety
+        if self.is_always_safe():
+            if first_append:
+                first_append = False
+            else:
+                req = req + '&'
+            req = req + "+rating:safe"
+
+        # handle limit
+        if int(self.get_image_limit()) > 0:
+            if first_append:
+                first_append = False
+            else:
+                req = req + '&'
+            req = req + "limit=" + str(self.get_image_limit())
+
+        if self.get_score_limit() >= 0:
+            if first_append:
+                first_append = False
+            else:
+                req = req + '&'
+            req = req + "score:>=" + str(self.get_score_limit())
+
+        if self.sort_mode is not None:
+            if first_append:
+                first_append = False
+            else:
+                req = req + '&'
+            if self.sort_mode == self.SCORE_SORT:
+                req = req + "sort:score:desc"
+            elif self.sort_mode == self.RANDOM_SORT:
+                req = req + "sort:random"
+
+        if first_append:
+            first_append = False
+        else:
+            req = req + '&'
+        req = req + "{t}=".format(t=self.page_tag) + str(self.page_number)
+
+        print(req)
+        return req
+
+    def make_entry(self, data: dict) -> Entry:
+        try:
+            en = Entry()
+            en.image_full = data["file_url"].replace("\\", "")
+            en.image_small = data['large_file_url']
+            en.source = data["source"].replace("\\", "")
+            en.tags = data["tag_string"].split(" ")
+            en.headers = self.get_headers()
+            en.title = "Art by " + data['tag_string_artist']
+            return en
+        except:
+            print("Failed to make entry: ")
+            print(data)
