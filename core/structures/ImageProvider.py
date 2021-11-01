@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from typing import Union
 
 import requests
 from kivy import Logger
@@ -8,9 +9,6 @@ from core.structures import Entry
 
 
 class ImageProvider:
-    ### Sorting Modes ###
-    RANDOM_SORT = "random"
-    SCORE_SORT = "score"
 
     def __init__(self):
         self.user_id = ""
@@ -30,7 +28,8 @@ class ImageProvider:
 
         self.__headers = None
 
-        self.sort_by = None
+        self.sorting_modes = []
+        self.sort_mode = None
 
         self.page_number = 0
 
@@ -91,8 +90,14 @@ class ImageProvider:
         split_tags = tags.split(" ")
         self.blacklist_tags(split_tags)
 
-    def set_sorting_method(self, sorting_method: str = None):
-        self.sort_by = sorting_method
+    def sort_by(self, mode:Union[str, int]):
+        if type(mode) == str:
+            if mode in self.sorting_modes:
+                self.sort_mode = mode
+
+        elif type(mode) == int:
+            if mode in range(len(self.sorting_modes)):
+                self.sort_mode = self.sorting_modes[mode]
 
     def set_score_limit(self, limit: int):
         self.__score_limit = limit

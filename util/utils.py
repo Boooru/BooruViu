@@ -145,3 +145,28 @@ def make_temp_dir():
         os.mkdir("temp")
     except FileExistsError:
         pass
+
+# https://www.redgifs.com/watch/somethinghere
+# to
+# https://thumbs2.redgifs.com/somethinghere.mp4 if size == None
+# or
+# https://thumbs2.redgifs.com/somethinghere.mp4-mobile if size == "mobile"
+def transform_redgif(url:str, size="") -> str:
+    if contains_domain(url, "redgifs") or contains_domain(url, 'gyfcat'):
+        from bs4 import BeautifulSoup
+        import urllib.request
+
+        # Build the request, then get the result
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent',
+                       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                       'Chrome/87.0.4280.88 Safari/537.36')
+        content = urllib.request.urlopen(req)
+        read_content = content.read()
+
+        # Parse the data from the result
+        soup = BeautifulSoup(read_content, 'html.parser')
+        v_element = soup.find_all("meta", {"property": "og:video"})
+
+        return v_element[0].get('content')
+

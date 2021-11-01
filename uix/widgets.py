@@ -1,5 +1,7 @@
 from kivy import Logger
+from kivy.uix.button import Button
 from kivy.uix.checkbox import CheckBox
+from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import AsyncImage, Image
 from kivy.uix.label import Label
@@ -106,3 +108,13 @@ class CheckBoxArray(GridLayout):
                 labels.append(child.text)
         print("All active: " + str(labels))
         return labels
+
+
+class SortDropDown(DropDown):
+
+    def __init__(self, func=None):
+        super(SortDropDown, self).__init__()
+        mainbutton = Button(text='Select Sort Mode', size_hint=(None, None))
+        mainbutton.bind(on_release=self.open)
+        self.func = func
+        self.bind(on_select=lambda instance, x: func(instance.text))

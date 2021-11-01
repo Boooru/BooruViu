@@ -17,6 +17,9 @@ class RedditProvider(ImageProvider):
         self.internal_index = 0
         self.__reddit_api: praw.Reddit = self.__auth()
         self.__subreddt_generator: Subreddit = None
+        self.set_limit(1)
+        self.sorting_modes = ['top', 'hot', 'new']
+        self.sort_mode = self.sorting_modes[0]
 
     def __auth(self):
         if assets.strings.PROVIDER_REDDIT_NAME in core.caches.api_cache and \
@@ -34,10 +37,10 @@ class RedditProvider(ImageProvider):
             return core.caches.api_cache[assets.strings.PROVIDER_REDDIT_NAME]
 
     def __test(self) -> bool:
-        askreddit = self.__reddit_api.subreddit('askreddit')
-        if askreddit:
+        try:
+            askreddit = self.__reddit_api.subreddit('askreddit').hot(limit=1)
             return True
-        else:
+        except:
             return False
 
     def compose(self) -> str:
@@ -55,7 +58,17 @@ class RedditProvider(ImageProvider):
             return entries
 
         if reset_page:
-            self.__subreddt_generator = self.__reddit_api.subreddit(self.compose()).hot()
+            limit = self.get_image_limit()
+            if self.sort_mode == 'hot':
+                Logger.info("Sorting by hot")
+                self.__subreddt_generator = self.__reddit_api.subreddit(self.compose()).hot()
+            if self.sort_mode == 'top':
+                Logger.info("Sorting by top")
+                self.__subreddt_generator = self.__reddit_api.subreddit(self.compose()).top()
+            else:
+                Logger.info("Sorting by new")
+                Logger.info("Sort mode was: " + str(self.sort_by))
+                self.__subreddt_generator = self.__reddit_api.subreddit(self.compose()).new()
 
         for submission in self.__subreddt_generator:
             if self.internal_index > self.get_image_limit():
@@ -69,15 +82,22 @@ class RedditProvider(ImageProvider):
 
             entries.append(self.make_entry(submission))
 
-
         return entries
 
     def make_entry(self, data: praw.models.Submission) -> Entry:
         e = Entry()
-        e.image_full = data.url
-        e.image_small = data.url
+
+        if util.utils.contains_domain(data.url, "redgifs"):
+            e.image_full = util.utils.transform_redgif(data.url)
+            e.image_small = util.utils.transform_redgif(data.url, "mobile")
+        elif util.utils.contains_domain(data.url, "gify"):
+            pass
+        else:
+            e.image_full = data.url
+            e.image_small = data.url
         e.source = data.permalink
         e.score = data.score
+        e.tile = data.title
         return e
 
     def more(self) -> list[Entry]:

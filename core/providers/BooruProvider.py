@@ -37,10 +37,10 @@ class BooruProvider(ImageProvider):
         if self.get_score_limit() >= 0:
             req = req + "&score:>=" + str(self.get_score_limit())
 
-        if self.sort_by is not None:
-            if self.sort_by == self.SCORE_SORT:
+        if self.sort_mode is not None:
+            if self.sort_mode == self.SCORE_SORT:
                 req = req + "&sort:score:desc"
-            elif self.sort_by == self.RANDOM_SORT:
+            elif self.sort_mode == self.RANDOM_SORT:
                 req = req + "&sort:random"
 
         req = req + "&pid=" + str(self.page_number)

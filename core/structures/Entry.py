@@ -8,6 +8,7 @@ class Entry:
         self.tags = []
         self.score = -1
         self.headers = {}
+        self.title = None
 
     def as_dict(self):
         return {'path': self.image_path,
@@ -15,7 +16,8 @@ class Entry:
                 'source': self.source,
                 'tags': self.tags,
                 'score': self.score,
-                'headers': self.headers
+                'headers': self.headers,
+                'title' : self.title
                 }
 
     def tags_as_string(self) -> str:

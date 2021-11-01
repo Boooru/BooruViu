@@ -17,6 +17,7 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
+from kivy.uix.video import Video
 from kivy.uix.widget import Widget
 
 import assets.strings
@@ -41,6 +42,8 @@ class ProviderWindow(Widget):
         super(ProviderWindow, self).__init__(**kwargs)
 
         self.provider_manager = ImageProviderManager.ProviderManager()
+
+        self.sorting_mode_setup()
 
         with self.canvas.before:
             Color(.40, .40, .40, 1)
@@ -88,7 +91,8 @@ class ProviderWindow(Widget):
                 continue
             img = None
             if entry.image_small[-3:] == "mp4":
-                # img = Video(source=entry.image_full)
+                print(entry.image_small)
+                img = Video(source=entry.image_small)
                 pass
             else:
                 if entry.image_path and entry.image_path != "":
@@ -193,7 +197,10 @@ class ProviderWindow(Widget):
 
         # Setup popup and launch
         viewer = Popup()
-        viewer.title = "Booru Viu"
+        if meta_data.title and meta_data.title != "":
+            viewer.title = meta_data.title + " @ " + str(meta_data.source)
+        else:
+            viewer.title = str(meta_data.source)
         viewer.content = outer_holder
 
         viewer.bind(on_dismiss=self.set_scroller_func)
@@ -237,6 +244,19 @@ class ProviderWindow(Widget):
 
     def open_flows_menu(self, caller=None):
         Logger.warning("Opening flows menu")
+
+    def sorting_mode_setup(self):
+        for sort_mode in self.provider_manager.get_active_provider().sorting_modes:
+            btn = Button(text=sort_mode, size_hint_y=None, height=44)
+
+            # for each button, attach a callback that will call the select() method
+            # on the dropdown. We'll pass the text of the button as the data of the
+            # selection.
+            btn.bind(on_release=lambda btn: self.ids.sort_by_dropdown.select(btn.text))
+
+            # then add the button inside the dropdown
+            self.ids.sort_by_dropdown.add_widget(btn)
+            self.ids.sort_by_dropdown.func = self.provider_manager.get_active_provider().sort_by
 
 
 # Take care of setup before launching the window
