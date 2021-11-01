@@ -44,8 +44,14 @@ def best_video_variant(variants: list) -> str:
     return best_url
 
 
-def contains_domain(url: str, domain: str) -> bool:
-    return domain.lower() in re.split("/|\\.", url.lower())
+def contains_domain(url: str, domain: Union[str, list[str]]) -> Union[bool, str]:
+    if type(domain) == str:
+        return domain.lower() in re.split("/|\\.", url.lower())
+    elif type(domain) == list:
+        parts = re.split("/|\\.", url.lower())
+        for d in domain:
+            if d in parts:
+                return d
 
 
 # Extracts user ID from a url. Supported domains are:

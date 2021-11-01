@@ -1,3 +1,4 @@
+from kivy import Logger
 from twitter import Twitter, OAuth2, TwitterStream
 from twitter.api import TwitterListResponse
 
@@ -19,7 +20,7 @@ class TwitterProvider(ImageProvider):
         self.__twitter = Twitter(auth=OAuth2(bearer_token=self.__bearer_token))
         self.__stream = TwitterStream(auth=OAuth2(bearer_token=self.__bearer_token))
         self.__target = ""
-        self.set_limit(200) # Not true image limit, actually
+        self.set_limit(200)  # Not true image limit, actually
 
     def compose(self) -> str:
         if len(self.get_tags()) > 0:
@@ -38,7 +39,7 @@ class TwitterProvider(ImageProvider):
 
         if self.__target:
             if self.page_number and self.page_number > -1:
-                results = self.__twitter.statuses.user_timeline(screen_name=self.__target, count=self.get_image_limit(),
+                results = self.__twitter.statuses.user_timeline(screen_name=self.__target, count=200,
                                                                 max_id=self.page_number)
                 print("Searched with count or max")
             else:
@@ -51,7 +52,29 @@ class TwitterProvider(ImageProvider):
                 self.page_number = -1
                 print("No results found")
             for r in results:  # For each result
-                if "media" in r["entities"]:  # That has some media in it
+                if "extended_entities" in r:
+                    for em in r['extended_entities']['media']:  # For each individual media on that tweet
+                        if em['type'] == 'video':
+                            print('Found a video: ')
+                            e = Entry()
+                            e.image_full = utils.best_video_variant(em['video_info']['variants']).removesuffix(
+                                "mp4*+") + ".mp4"
+                            print(e.image_full)
+                            e.image_small = e.image_full
+                            e.tags = ['twitter_video']
+                            e.score = 0
+                            entries.append(e)
+                        else:
+                            Logger.warn("Found extended media of type: " + em['type'])
+                            e = Entry()
+                            e.image_full = em['media_url_https']
+                            e.source = em['expanded_url']
+                            e.image_small = em['media_url_https']
+                            e.tags = []
+                            e.score = 0
+                            e.headers = self.get_headers()
+                            entries.append(e)
+                elif "media" in r["entities"]:  # That has some media in it
                     for m in r['entities']['media']:  # For each individual media on that tweet
                         e = Entry()
                         e.image_full = m['media_url_https']
@@ -60,21 +83,11 @@ class TwitterProvider(ImageProvider):
                         e.tags = []
                         e.score = 0
                         e.headers = self.get_headers()
-                        if "extended_entities" in r:
-                            for em in r['extended_entities']['media']:  # For each individual media on that tweet
-                                if em['type'] == 'video':
-                                    print('Found a video: ')
-                                    e.image_full = utils.best_video_variant(em['video_info']['variants']).removesuffix(
-                                        "mp4*+") + ".mp4"
-                                    print(e.image_full)
-                                    e.tags = ['twitter_video']
-                                    e.score = 0
-                                else:
-                                    pass
-
                         entries.append(e)
-                else:
-                    print("No media found")
+
+
+            else:
+                print("No media found")
         return entries
 
     def more(self) -> list[Entry]:
