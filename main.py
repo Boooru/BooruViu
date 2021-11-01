@@ -29,6 +29,7 @@ if __name__ == '__main__':
             Config.set('input', 'mouse', 'mouse, disable_multitouch')
 
         io.load_api_keys()
+        io.load_settings()
         root()
 
     except:

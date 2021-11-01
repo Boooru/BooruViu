@@ -16,7 +16,17 @@ def load_api_keys():
         if not os.path.isdir("./tokens"):
             os.mkdir("./tokens")
         with open(strings.API_KEY_STORE_PATH, 'w') as keystore:
-            keystore.write("")
+            s = """
+            [Keys]
+            Saucenao = None
+            Twitter = None
+            Reddit_app = None
+            Reddit_secret = None
+            Reddit_username = None
+            Reddit_password = None
+            """
+
+            keystore.write(s)
             keystore.close()
     else:
         print("Loading keystore...")
@@ -24,12 +34,39 @@ def load_api_keys():
         cfg = parser.read(strings.API_KEY_STORE_PATH)
 
         keys = {}
-        for section in parser.sections():
-            keys[section.title()] = parser[section]['key']
+        for key in parser['Keys']:
+            keys[key] = parser['Keys'][key]
+
+        print(keys)
         caches.api_keys = keys
 
 
-def run_executable(path_to_file, is_async: bool = False):
+def load_settings():
+    if os.path.exists(strings.CONFIG_FILE_NAME):
+        parser = ConfigParser()
+        parser.read(strings.CONFIG_FILE_NAME)
+
+        user_rules = {}
+        general = {}
+
+        for section in parser.sections():
+            if section.title() in strings.ALL_PROVIDERS:
+                user_rules[section.title()] = {}
+                for value in parser[section.title()].keys():
+                    user_rules[section.title()][value] = parser[section.title()][value]
+
+            elif section.title() == "Main":
+                for value in parser[section.title()].keys():
+                    general[value] = parser[section.title()][value]
+
+        caches.general_config = general
+        caches.user_rules = user_rules
+    else:
+        cf = open(strings.CONFIG_FILE_NAME, 'x')
+        cf.close()
+
+
+def run_executable(path_to_file, args: str = "", is_async: bool = False):
     p = subprocess.Popen(path_to_file, cwd=os.getcwd())
     if not is_async:
         return_code = p.wait()

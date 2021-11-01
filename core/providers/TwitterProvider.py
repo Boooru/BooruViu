@@ -15,7 +15,7 @@ class TwitterProvider(ImageProvider):
         if "bearer_token" in kwargs:
             self.__bearer_token = kwargs["bearer_token"]
         else:
-            self.__bearer_token = core.caches.api_keys['Twitter']
+            self.__bearer_token = core.caches.api_keys['twitter']
         self.__twitter = Twitter(auth=OAuth2(bearer_token=self.__bearer_token))
         self.__stream = TwitterStream(auth=OAuth2(bearer_token=self.__bearer_token))
         self.__target = ""

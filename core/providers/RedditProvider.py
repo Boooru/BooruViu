@@ -28,11 +28,11 @@ class RedditProvider(ImageProvider):
             return core.caches.api_cache[assets.strings.PROVIDER_REDDIT_NAME]
         else:
             core.caches.api_cache[assets.strings.PROVIDER_REDDIT_NAME] = \
-                praw.Reddit(client_id=core.caches.api_keys[assets.strings.PROVIDER_REDDIT_NAME],
+                praw.Reddit(client_id=core.caches.api_keys["reddit_app"],
                             user_agent="BooruViu",
-                            client_secret=core.caches.api_keys['Reddit Secret'],
-                            username=core.caches.api_keys['Reddit Username'],
-                            password=core.caches.api_keys['Reddit Password'])
+                            client_secret=core.caches.api_keys['reddit_secret'],
+                            username=core.caches.api_keys['reddit_username'],
+                            password=core.caches.api_keys['reddit_password'])
 
             return core.caches.api_cache[assets.strings.PROVIDER_REDDIT_NAME]
 
@@ -62,7 +62,7 @@ class RedditProvider(ImageProvider):
             if self.sort_mode == 'hot':
                 Logger.info("Sorting by hot")
                 self.__subreddt_generator = self.__reddit_api.subreddit(self.compose()).hot()
-            if self.sort_mode == 'top':
+            elif self.sort_mode == 'top':
                 Logger.info("Sorting by top")
                 self.__subreddt_generator = self.__reddit_api.subreddit(self.compose()).top()
             else:
@@ -87,7 +87,7 @@ class RedditProvider(ImageProvider):
     def make_entry(self, data: praw.models.Submission) -> Entry:
         e = Entry()
 
-        if util.utils.contains_domain(data.url, "redgifs"):
+        if util.utils.contains_domain(data.url, "redgifs" or util.utils.contains_domain(data.url, 'gyfcat')):
             e.image_full = util.utils.transform_redgif(data.url)
             e.image_small = util.utils.transform_redgif(data.url, "mobile")
         elif util.utils.contains_domain(data.url, "gify"):

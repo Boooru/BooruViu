@@ -3,6 +3,7 @@ from configparser import ConfigParser
 
 from kivy import Config
 
+from core import caches
 from core.structures import ImageProvider
 import assets.strings
 from util import provider_util
@@ -22,21 +23,8 @@ class ProviderManager:
                                        "always_safe": None
                                        }
 
-        if os.path.exists(assets.strings.CONFIG_FILE_NAME):
-            parser = ConfigParser()
-            parser.read(assets.strings.CONFIG_FILE_NAME)
-
-            for section in parser.sections():
-                if section.title() in assets.strings.ALL_PROVIDERS:
-                    for value in parser[section.title()].keys():
-                        self.__user_rules[section.title()][value] = parser[section.title()][value]
-                elif section.title() == "Main":
-                    if "default_provider" in parser[section.title()].keys():
-                        self.DEFAULT_PROVIDER = parser[section.title()]["default_provider"]
-        else:
-            cf = open(assets.strings.CONFIG_FILE_NAME, 'x')
-            cf.close()
-
+        if caches.general_config and caches.general_config['default_provider']:
+            self.DEFAULT_PROVIDER = caches.general_config['default_provider']
         self.set_provider(self.DEFAULT_PROVIDER)
 
     def clear(self) -> None:

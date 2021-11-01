@@ -91,7 +91,7 @@ def get_saucenao_results(url: str):
         from saucenao_api import SauceNao
         from core.caches import api_keys
 
-        sauce = SauceNao(api_keys['Saucenao'])
+        sauce = SauceNao(api_keys['saucenao'])
         return sauce.from_url(url)
     except:
         Logger.warn("Couldn't make SauceNao API request!")

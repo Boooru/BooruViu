@@ -6,3 +6,7 @@
 api_cache = {}
 
 api_keys = {}
+
+user_rules = {}
+
+general_config = {}
