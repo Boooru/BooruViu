@@ -46,6 +46,8 @@ Reddit
 ## From Source
 - Run `git clone https://github.com/Boooru/BooruViu.git`
 - From inside the cloned folder, run `pip install -r requirements.txt`
+- After pip is done, run `pip install saucenao_api`.
+  - Pip thinks that `saucenao_api` is in conflict with the other packages, so installing it separately avoids the error messages.
 - Create a folder named `tokens`. Create a file inside this folder named `keystore`
 - Open `keystore` with your favorite text editor. 
 - Supply the keystore with API keys. **This step is not required unless you want to use Twitter, Reddit, or Saucenao integration**

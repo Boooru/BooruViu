@@ -14,14 +14,7 @@ class ProviderManager:
 
     def __init__(self):
         self.__provider = None
-        self.__user_rules = {}
-
-        for name in assets.strings.ALL_PROVIDERS:
-            self.__user_rules[name] = {"tags": "",
-                                       "blacklist": "",
-                                       "limit": None,
-                                       "always_safe": None
-                                       }
+        self.__user_rules = caches.user_rules
 
         if caches.general_config and caches.general_config['default_provider']:
             self.DEFAULT_PROVIDER = caches.general_config['default_provider']
@@ -35,7 +28,9 @@ class ProviderManager:
 
     def set_provider(self, provider_name: str):
         self.__provider = (provider_util.translate(provider_name))()
-        Config.set('network', 'referer', "")
+
+        if provider_name not in caches.user_rules:
+            return
 
         if "tags" in self.__user_rules[provider_name] and self.__user_rules[provider_name]["tags"]:
             self.__provider.add_tags_from_string(tags=self.__user_rules[provider_name]["tags"])
