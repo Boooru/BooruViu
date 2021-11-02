@@ -17,6 +17,7 @@ flow_manager = FlowManager()
 
 def root():
     Config.set('graphics', 'resizable', True)
+    Config.set('kivy', 'exit_on_escape', 0)
     Window.size = (1920, 1080)
     ui.BooruViuApp().run()
 

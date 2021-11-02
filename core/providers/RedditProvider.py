@@ -17,9 +17,9 @@ class RedditProvider(ImageProvider):
         self.internal_index = 0
         self.__reddit_api: praw.Reddit = self.__auth()
         self.__subreddt_generator: Subreddit = None
-        self.set_limit(1)
         self.sorting_modes = ['top', 'hot', 'new']
         self.sort_mode = self.sorting_modes[1]
+        super().set_limit(10)
 
     def __auth(self):
         if assets.strings.PROVIDER_REDDIT_NAME in core.caches.api_cache and \
@@ -38,7 +38,7 @@ class RedditProvider(ImageProvider):
 
     def __test(self) -> bool:
         try:
-            askreddit = self.__reddit_api.subreddit('askreddit').hot(limit=1)
+            askreddit = self.__reddit_api.subreddit('askreddit').hot()
             return True
         except:
             return False
@@ -74,11 +74,11 @@ class RedditProvider(ImageProvider):
             if self.internal_index > self.get_image_limit():
                 break
 
-            self.internal_index = self.internal_index + 1
-
             if submission.selftext != "":
                 Logger.info("Skipping self-post: " + submission.url)
                 continue
+
+            self.internal_index = self.internal_index + 1
 
             entries.append(self.make_entry(submission))
 
