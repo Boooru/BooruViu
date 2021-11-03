@@ -18,12 +18,12 @@ BooruViu implements a suite of features, some of which may not be available on c
     - View newest by all (coming soon)
     - View newest by followed (coming soon)
 
-Twitter
+- Twitter
     - View a user's tweets
     - Filter by retweet (coming soon)
     - Filter by hashtag (coming soon)
     
-Reddit
+- Reddit
     - View any subreddit's image posts
     - View your front-page
     - View /r/all
